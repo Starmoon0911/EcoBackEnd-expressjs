@@ -1,6 +1,7 @@
 const User = require('@database/schemas/User'); // 使用者模型
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const log = require('@utils/logger')
 require('dotenv').config()
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret'; // 確保設置 JWT 密鑰
 
@@ -31,17 +32,18 @@ module.exports = {
             });
 
             await newUser.save();
-
+            log.info(`新的使用者創建${username}`)
             res.status(201).json({ message: '註冊成功' });
         } catch (error) {
             console.error(error);
+            log.error(error)
             res.status(500).json({ message: '伺服器錯誤' });
         }
     },
 
     login: async (req, res) => {
         const { email, password, rememberMe } = req.body;
-        const _day = rememberMe ? process.env.JWT_EXPIRES_IN : process.env.JWT_DEF_EXPIRES_IN 
+        const _day = rememberMe ? process.env.JWT_EXPIRES_IN : process.env.JWT_DEF_EXPIRES_IN
         // 驗證輸入
         if (!email || !password) {
             return res.status(400).json({ message: '電子郵件和密碼都是必填的' });
@@ -62,10 +64,11 @@ module.exports = {
 
             // 生成 JWT 令牌
             const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: _day });
-
+            log.info(`${user.username}成功登入`)
             res.status(200).json({ message: '登入成功', token });
         } catch (error) {
             console.error(error);
+            log.error(error)
             res.status(500).json({ message: '伺服器錯誤' });
         }
     }
