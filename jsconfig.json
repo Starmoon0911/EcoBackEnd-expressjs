@@ -7,12 +7,13 @@
         "@utils/*": ["./utils/*"],    // 別名配置
         "@api/*": ["./src/api/*"],
         "@database/*": ["./src/database/*"],
-        "@root/*": ["./*"]
+        "@root/*": ["./*"],
+        "@controller/*":["./src/controllers/*"]
       },
-      "checkJs": true                      // 開啟 JavaScript 檔案的類型檢查
+      "checkJs": false             // 開啟 JavaScript 檔案的類型檢查
     },
     "include": [
-      "src/**/*"                           // 包含 src 資料夾中的所有檔案
+      "./**/*"                           // 包含 src 資料夾中的所有檔案
     ],
     "exclude": [
       "node_modules",                      // 排除 node_modules 資料夾

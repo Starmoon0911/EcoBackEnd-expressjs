@@ -1,19 +1,17 @@
 require('dotenv').config();
+require('module-alias/register')
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const log = require('./utils/logger');
 const fs = require('fs');
 const Table = require('ascii-table');
-
+const db = require('@database/mongoose.js')
 const app = express();
 const PORT = process.env.PORT || 9000;
-
+const cors = require('cors')
 app.use(bodyParser.json());
-
-// 存放路由資訊的陣列
-const apiRoutes = [];
-
+app.use(cors());
 // 自動加載 API 路由
 const apiPath = path.join(__dirname, 'src', 'api');
 
@@ -68,4 +66,5 @@ loadRoutes(apiPath, '/api');
 app.listen(PORT, () => {
     log.info(`App listening on port ${PORT}`);
     console.log(table.toString()); // 顯示路由狀態表格
+    db.initializeMongoose()
 });

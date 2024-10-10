@@ -8,6 +8,7 @@ const day = date.getDate();
 const logDir = `./logs/${year}-${month}-${day}`;
 
 // 確保目錄存在
+
 const fs = require('fs');
 if (!fs.existsSync(logDir)) {
     fs.mkdirSync(logDir, { recursive: true });
