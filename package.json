@@ -130,7 +130,7 @@
   "license": "ISC",
 
   "_moduleAliases": {
-    "@utils": "./src/utils",
+    "@utils": "./utils",
     "@api": "./src/api",
     "@database":"./src/database",
     "@root":"./"
