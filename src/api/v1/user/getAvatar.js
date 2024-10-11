@@ -4,4 +4,5 @@ const userController = require('@controller/userController'); // 引入用戶控
 
 router.get('/avatar/:id', userController.getAvatar); // 確保這裡的路由設置正確
 
+
 module.exports = router;

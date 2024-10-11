@@ -1,23 +1,35 @@
 {
-    "compilerOptions": {
-      "target": "es6",                     // 目標 ECMAScript 版本
-      "module": "commonjs",                // 使用 CommonJS 模組
-      "baseUrl": ".",                      // 基本路徑
-      "paths": {
-        "@utils/*": ["./utils/*"],    // 別名配置
-        "@api/*": ["./src/api/*"],
-        "@database/*": ["./src/database/*"],
-        "@root/*": ["./*"],
-        "@controller/*":["./src/controllers/*"]
-      },
-      "checkJs": false             // 開啟 JavaScript 檔案的類型檢查
+  "compilerOptions": {
+    "target": "es6", // 目標 ECMAScript 版本
+    "module": "commonjs", // 使用 CommonJS 模組
+    "baseUrl": ".", // 基本路徑
+    "paths": {
+      "@utils/*": [
+        "./utils/*"
+      ], // 別名配置
+      "@api/*": [
+        "./src/api/*"
+      ],
+      "@database/*": [
+        "./src/database/*"
+      ],
+      "@root/*": [
+        "./*"
+      ],
+      "@controller/*": [
+        "./src/controllers/*"
+      ],
+      "@middleware/*": [
+        "./src/middleware/*"
+      ]
     },
-    "include": [
-      "./**/*"                           // 包含 src 資料夾中的所有檔案
-    ],
-    "exclude": [
-      "node_modules",                      // 排除 node_modules 資料夾
-      "**/*.spec.js"                       // 排除測試檔案
-    ]
-  }
-  
+    "checkJs": false // 開啟 JavaScript 檔案的類型檢查
+  },
+  "include": [
+    "./**/*" // 包含 src 資料夾中的所有檔案
+  ],
+  "exclude": [
+    "node_modules", // 排除 node_modules 資料夾
+    "**/*.spec.js" // 排除測試檔案
+  ]
+}
