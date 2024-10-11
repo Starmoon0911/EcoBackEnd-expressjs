@@ -10,8 +10,11 @@ const db = require('@database/mongoose.js')
 const app = express();
 const PORT = process.env.PORT || 9000;
 const cors = require('cors')
+const NotFound = require('@root/src/middleware/NotFound')
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors())
+app.use(NotFound)
+app.use('/upload/avatar', express.static(path.join(__dirname, 'upload/avatar')));
 // 自動加載 API 路由
 const apiPath = path.join(__dirname, 'src', 'api');
 

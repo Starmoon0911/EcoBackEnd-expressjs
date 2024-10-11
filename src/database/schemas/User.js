@@ -39,6 +39,11 @@ const userSchema = new mongoose.Schema({
         default: 0.0,
         min: 0
     },
+    avatarURL: {
+        type: String,
+        trim: true,
+        default: ''
+    },
     couponCodes: {
         type: [String], // 優惠碼陣列
         default: []
