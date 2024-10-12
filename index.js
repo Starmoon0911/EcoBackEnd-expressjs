@@ -1,25 +1,28 @@
 require('dotenv').config();
-require('module-alias/register')
+require('module-alias/register');
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const log = require('./utils/logger');
 const fs = require('fs');
 const Table = require('ascii-table');
-const db = require('@database/mongoose.js')
+const db = require('@database/mongoose.js');
 const app = express();
 const PORT = process.env.PORT || 9000;
-const cors = require('cors')
-const NotFound = require('@root/src/middleware/NotFound')
+const cors = require('cors');
+const NotFound = require('@root/src/middleware/NotFound');
+
 app.use(bodyParser.json());
-app.use(cors())
+app.use(cors());
 app.use('/upload/avatar', express.static(path.join(__dirname, 'upload/avatar')));
+
 // 自動加載 API 路由
 const apiPath = path.join(__dirname, 'src', 'api');
 
 // 創建表格以顯示路由狀態
 const table = new Table.factory('Api Status');
-table.setHeading('Path', 'method', 'status')
+table.setHeading('Path', 'Method', 'Status');
+
 const loadRoutes = (dir, basePath) => {
     fs.readdirSync(dir).forEach(file => {
         const fullPath = path.join(dir, file);
@@ -32,7 +35,7 @@ const loadRoutes = (dir, basePath) => {
             try {
                 // 載入路由模組
                 const route = require(fullPath);
-                const methods = Object.keys(route.stack.reduce((acc, curr) => {
+                const methods = Object.keys(route.router.stack.reduce((acc, curr) => {
                     curr.route && curr.route.methods && Object.keys(curr.route.methods).forEach(method => {
                         acc[method] = true;
                     });
@@ -40,14 +43,12 @@ const loadRoutes = (dir, basePath) => {
                 }, {}));
 
                 // 註冊路由
-                app.use(`${basePath}`, route);
+                app.use(`${basePath}/${route.name}`, route.router);
 
                 // 記錄路由狀態
                 methods.forEach(method => {
                     table.addRow(
-                        `${basePath}/${file
-                            .toString()
-                            .replace('.js', '')}`,
+                        `${basePath}/${route.name}`,
                         method.toUpperCase(),
                         '✅'
                     );
@@ -68,5 +69,5 @@ loadRoutes(apiPath, '/api');
 app.listen(PORT, () => {
     log.info(`App listening on port ${PORT}`);
     console.log(table.toString()); // 顯示路由狀態表格
-    db.initializeMongoose()
+    db.initializeMongoose();
 });

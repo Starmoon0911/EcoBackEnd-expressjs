@@ -6,5 +6,8 @@ const resetpw = require('@root/src/controllers/resetpwController')
 
 router.post('/password/reset/request', resetpw.requestResetPassword);
 
-module.exports = router;
+module.exports = {
+    router,
+    name:"password/reset/request"
+};
 

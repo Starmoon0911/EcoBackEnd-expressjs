@@ -5,4 +5,7 @@ const authenticateJWT = require('@middleware/auth')
 
 router.post('/password/reset/veify', resetpw.verifyToken)
 
-module.exports = router
+module.exports = {
+    router,
+    name:"password/reset/veify"
+};

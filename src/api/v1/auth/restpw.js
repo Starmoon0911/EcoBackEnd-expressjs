@@ -6,4 +6,7 @@ const authenticateJWT = require('@middleware/auth')
 
 router.post('/password/reset', resetpw.resetPassword)
 
-module.exports = router
+module.exports = {
+    router,
+    name:"password/reset"
+};
