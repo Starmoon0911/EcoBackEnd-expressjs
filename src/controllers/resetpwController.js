@@ -7,11 +7,17 @@ require('dotenv').config();
 const generateRandomCode = require('@utils/generateRandomCode');
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 const log = require('@utils/logger')
+
+const { ObjectId } = require('mongodb')
+const { isValidObjectId } = require('mongoose')
 // 創建重置密碼請求的 API
 module.exports = {
     resetPassword: async (req, res) => {
         const { userId, newPassword } = req.body;
         try {
+            if (!isValidObjectId(userId)) {
+                return res.status(400).json({ message: 'userId不是正確的格式' })
+            }
             const user = await User.findById(userId);
             if (!user) {
                 return res.status(404).json({ message: '用戶不存在' });
@@ -46,8 +52,8 @@ module.exports = {
                 await code.delete(); // 確保使用 await
                 return res.status(403).json({ message: "Reset token can't be used now" });
             }
-
             res.status(200).json({ message: 'Verified' });
+            await code.delete()
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Server error' });
