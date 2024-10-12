@@ -10,7 +10,6 @@ const db = require('@database/mongoose.js');
 const app = express();
 const PORT = process.env.PORT || 9000;
 const cors = require('cors');
-const NotFound = require('@root/src/middleware/NotFound');
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -22,7 +21,6 @@ const apiPath = path.join(__dirname, 'src', 'api');
 // 創建表格以顯示路由狀態
 const table = new Table.factory('Api Status');
 table.setHeading('Path', 'Method', 'Status');
-
 const loadRoutes = (dir, basePath) => {
     fs.readdirSync(dir).forEach(file => {
         const fullPath = path.join(dir, file);
@@ -42,8 +40,8 @@ const loadRoutes = (dir, basePath) => {
                     return acc;
                 }, {}));
 
-                // 註冊路由
-                app.use(`${basePath}/${route.name}`, route.router);
+                console.log(`Loading route: ${basePath}/${route.name}`); // 日誌
+                app.use(`${basePath}`, route.router);
 
                 // 記錄路由狀態
                 methods.forEach(method => {
