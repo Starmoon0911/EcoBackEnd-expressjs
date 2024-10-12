@@ -6,5 +6,5 @@ router.post('/login', userController.login);
 
 module.exports = {
     router,
-    name:"login"
+    name: "login"
 };
