@@ -29,17 +29,17 @@ const CommentSchema = new mongoose.Schema({
         trim: true,
     },
     tags: {
-        type: [String],  // 儲存關鍵字
+        type: [String],
         default: [],
     },
-    replies: [ReplySchema],  // 新增的回覆屬性
+    replies: [ReplySchema],
     createdAt: {
         type: Date,
         default: Date.now,
     },
 });
 
-const Schema = new mongoose.Schema({
+const ProductSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
@@ -66,13 +66,17 @@ const Schema = new mongoose.Schema({
         min: 0,
     },
     tags: {
-        type: [String],  // 儲存產品標籤
+        type: [String],
+        default: [],
+    },
+    images: {
+        type: [String], // 儲存多張圖片的路徑或 URL
         default: [],
     },
     comments: {
         type: [CommentSchema],
-        default: []
-    },  // 嵌套留言 Schema
+        default: [],
+    },
     createdAt: {
         type: Date,
         default: Date.now,
@@ -83,11 +87,11 @@ const Schema = new mongoose.Schema({
     },
 });
 
-Schema.pre('save', function (next) {
+ProductSchema.pre('save', function (next) {
     this.updatedAt = Date.now();
     next();
 });
 
-const Product = mongoose.model('Product', Schema);
+const Product = mongoose.model('Product', ProductSchema);
 
 module.exports = Product;

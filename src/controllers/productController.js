@@ -4,6 +4,9 @@ const User = require('@database/schemas/User');
 const { ObjectId } = require('mongodb')
 const jwt = require('jsonwebtoken')
 const { isValidObjectId } = require('mongoose')
+const multiparty = require('multiparty')
+
+
 const log = require('@utils/logger')
 const JWT_SECRET = process.env.JWT_SECRET
 module.exports = {
@@ -75,28 +78,63 @@ module.exports = {
         }
     },
     createProduct: async (req, res) => {
-        const { name, description, price, category, stock, tags } = req.body;
-        if ([name, description, price, category, stock].some(param => !param)) {
-            return res.status(400).json({ status: 400, message: '缺少必要參數' });
-        }
+        console.log(req.body);  // 顯示表單欄位資料
+        console.log(req.files);  // 顯示圖片檔案
 
         try {
+            const { body, files } = req;  // 從 req.body 取得欄位資料，從 req.files 取得檔案資料
+
+            // 檢查欄位資料是否存在
+            if (!body || Object.keys(body).length === 0) {
+                return res.status(400).json({ status: 400, message: '缺少表單欄位資料' });
+            }
+
+            // 取得欄位資料
+            const { name, description, price, category, stock } = body;
+
+            // 處理資料
+            const processedName = name ? name : '';
+            const processedDescription = description ? description : '';
+            const processedPrice = price ? parseFloat(price) : 0;
+            const processedCategory = category ? category : '';
+            const processedStock = stock ? parseInt(stock, 10) : 0;
+
+            // 處理上傳的圖片路徑
+            var imagePaths = [];
+            for (let i = 0; i < files.length; i++) {
+                if (files[i].fieldname === 'images') {
+                    imagePaths.push(files[i].path);
+                }
+            }
+            console.log(imagePaths)
+            // 確保資料完整後再儲存
+            if (![processedName, processedDescription, processedPrice, processedCategory, processedStock].every(param => param)) {
+                return res.status(400).json({ status: 400, message: '缺少必要參數' });
+            }
+
+            // 新增商品
             const newProduct = new Product({
-                name,
-                description,
-                price,
-                category,
-                stock,
-                tags
+                name: processedName,
+                description: processedDescription,
+                price: processedPrice,
+                category: processedCategory,
+                stock: processedStock,
+                images: imagePaths,  // 確保將圖片路徑作為陣列儲存
+                tags: []  // 可以選擇加上處理 tags 的邏輯
             });
+
             await newProduct.save();
-            log.info(`新的商品已創建: ${newProduct.name}`);
-            res.status(201).json({ status: 201, message: newProduct });
+            res.status(201).json({ status: 201, message: '商品新增成功', newProduct });
+
         } catch (error) {
-            log.error(error);
-            res.status(500).json({ status: 500, message: "Server Error" });
+            console.error(error);
+            res.status(500).json({ status: 500, message: "伺服器錯誤" });
         }
-    },
+    }
+
+    ,
+
+
     deleteProduct: async (req, res) => {
         const token = req.headers.authorization?.split(' ')[1];
         const { productId } = req.body;
