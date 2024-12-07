@@ -130,9 +130,65 @@ module.exports = {
             console.error(error);
             res.status(500).json({ status: 500, message: "伺服器錯誤" });
         }
-    }
+    },
+    getProduct: async (req, res) => {
+        const limit = parseInt(req.query.limit) || 10; // 每頁限制默認為 10
+        const page = parseInt(req.query.page) || 1; // 頁碼默認為第 1 頁
+        const id = req.query.id;
 
-    ,
+        try {
+            if (limit > 50) {
+                return res.status(400).json({
+                    success: false,
+                    message: "回傳資料數超過限制!(50)"
+                });
+            }
+
+            if (id) {
+                // 查詢單一商品
+                const product = await Product.findById(id);
+                if (!product) {
+                    return res.status(404).json({
+                        success: false,
+                        message: "找不到該商品",
+                        data: null
+                    });
+                }
+                return res.status(200).json({
+                    success: true,
+                    message: "成功獲取商品資料",
+                    data: product
+                });
+            }
+
+            // 查詢多個商品
+            const skip = (page - 1) * limit;
+
+            const products = await Product
+                .find()
+                .sort({ createdAt: -1 }) // 根據建立時間降序排列
+                .skip(skip)
+                .limit(limit);
+
+            const total = await Product.countDocuments();
+
+            res.status(200).json({
+                success: true,
+                message: "成功獲取商品資料",
+                data: products,
+                total: total,
+                page: page,
+                totalPages: Math.ceil(total / limit)
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({
+                success: false,
+                message: "獲取商品時發生錯誤",
+                error: error.message
+            });
+        }
+    },
 
 
     deleteProduct: async (req, res) => {

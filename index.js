@@ -14,6 +14,7 @@ const cors = require('cors');
 app.use(bodyParser.json());
 app.use(cors());
 app.use('/upload/avatar', express.static(path.join(__dirname, 'upload/avatar')));
+app.use('/upload/product', express.static(path.join(__dirname, 'upload/product')));
 
 // 自動加載 API 路由
 const apiPath = path.join(__dirname, 'src', 'api');

@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "Nextjs-eco-front-end"
+		},
+		{
+			"path": "EcoBackEnd-expressjs"
+		}
+	],
+	"settings": {}
+}

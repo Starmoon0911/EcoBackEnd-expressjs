@@ -39,7 +39,6 @@ const upload = multer({
     }
 });
 
-// 處理 multer 上傳錯誤
 const ProductUploadHandler = (req, res, next) => {
     upload.array('images', 5)(req, res, (err) => {
         if (err) {
@@ -51,13 +50,16 @@ const ProductUploadHandler = (req, res, next) => {
             }
             return res.status(400).json({ message });
         }
-        
+
+        // 在這裡處理路徑，確保反斜杠轉換為正斜杠
         req.files = req.files.map(file => ({
             ...file,
-            path: path.join('/', path.relative(process.cwd(), file.path)) // 加上前面的 '\'
+            path: path.join('/', path.relative(process.cwd(), file.path)).replace(/\\/g, '/')
         }));
+        
         next();
     });
 };
+
 
 module.exports = ProductUploadHandler;
