@@ -48,33 +48,28 @@ module.exports = {
 
     login: async (req, res) => {
         const { email, password, rememberMe } = req.body;
-        const _day = rememberMe ? process.env.JWT_EXPIRES_IN : process.env.JWT_DEF_EXPIRES_IN
-        // 驗證輸入
+        const tokenExpiration = rememberMe ? process.env.JWT_EXPIRES_IN : process.env.JWT_DEF_EXPIRES_IN;
+    
         if (!email || !password) {
             return res.status(400).json({ message: '電子郵件和密碼都是必填的' });
         }
-
+    
         try {
-            // 查找使用者
             const user = await User.findOne({ email });
             if (!user) {
-                return res.status(401).json({ message: '使用者不存在或密碼錯誤' });
+                return res.status(401).json({ message: '該電子郵件未註冊' });
             }
-
-            // 密碼比較
+    
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) {
-                return res.status(401).json({ message: '使用者不存在或密碼錯誤' });
+                return res.status(401).json({ message: '密碼錯誤' });
             }
-
-            // 生成 JWT 令牌
-            const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: _day });
-            log.info(`${user.username}成功登入`)
+    
+            const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: tokenExpiration });
             res.status(200).json({ message: '登入成功', token });
         } catch (error) {
             console.error(error);
-            log.error(error)
-            res.status(500).json({ message: '伺服器錯誤' });
+            res.status(500).json({ message: '伺服器錯誤，請稍後再試' });
         }
     },
     uploadAvatar: async (req, res) => {
