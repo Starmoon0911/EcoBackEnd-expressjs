@@ -167,6 +167,7 @@ module.exports = {
                     email:user.email,
                     avatarURL:`${req.protocol}://${req.get('host')}${user.avatarURL}`,
                     role:user.role,
+                    balance:user.balance,
                     createdAt:user.createdAt,
                     updatedAt:user.updatedAt
                 }
