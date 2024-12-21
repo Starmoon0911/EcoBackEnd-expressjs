@@ -5,7 +5,6 @@ const { ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
 const { isValidObjectId } = require('mongoose');
 const multiparty = require('multiparty');
-
 const log = require('@utils/logger');
 const JWT_SECRET = process.env.JWT_SECRET;
 module.exports = {
@@ -160,6 +159,7 @@ module.exports = {
                         data: null
                     });
                 }
+                product.images = product.images.map(image => `${req.protocol}://${req.get('host')}${image}`);
                 return res.status(200).json({
                     success: true,
                     message: "成功獲取商品資料",
@@ -175,6 +175,7 @@ module.exports = {
                 .sort({ createdAt: -1 }) // 根據建立時間降序排列
                 .skip(skip)
                 .limit(limit);
+
 
             const total = await Product.countDocuments();
 

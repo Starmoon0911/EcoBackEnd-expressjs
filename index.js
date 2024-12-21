@@ -70,3 +70,5 @@ app.listen(PORT, () => {
     console.log(table.toString()); // 顯示路由狀態表格
     db.initializeMongoose();
 });
+
+module.exports = app;
