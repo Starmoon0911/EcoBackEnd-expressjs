@@ -49,22 +49,22 @@ module.exports = {
     login: async (req, res) => {
         const { email, password, rememberMe } = req.body;
         const tokenExpiration = rememberMe ? process.env.JWT_EXPIRES_IN : process.env.JWT_DEF_EXPIRES_IN;
-    
+
         if (!email || !password) {
             return res.status(400).json({ message: '電子郵件和密碼都是必填的' });
         }
-    
+
         try {
             const user = await User.findOne({ email });
             if (!user) {
                 return res.status(401).json({ message: '該電子郵件未註冊' });
             }
-    
+
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) {
                 return res.status(401).json({ message: '密碼錯誤' });
             }
-    
+
             const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: tokenExpiration });
             res.status(200).json({ message: '登入成功', token });
         } catch (error) {
@@ -146,6 +146,34 @@ module.exports = {
             console.error(error);
             return res.status(500).json({ status: 500, message: '伺服器錯誤' });
         }
+    },
+    getUser: async (req, res) => {
+        const userID = req.params['id'];
+        if (!userID) {
+            return res.status(400).json({ status: 400, message: 'userID is required for getting user avatar' });
+        }
+        if (!isValidObjectId(userID)) {
+            return res.status(400).json({ status: 400, message: '哥們你的userID是甚麼ㄒㄧㄠˇ' })
+        }
+        try {
+            const user = await User.findById(userID); // 確保使用 await
+            if (!user) {
+                return res.status(404).json({ status: 404, message: 'No User Found :<' });
+            }
+            return res.status(200).json({
+                status:200,
+                data:{
+                    username:user.username,
+                    email:user.email,
+                    avatarURL:`${req.protocol}://${req.get('host')}${user.avatarURL}`,
+                    role:user.role,
+                    createdAt:user.createdAt,
+                    updatedAt:user.updatedAt
+                }
+            })
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ status: 500, message: '伺服器錯誤' });
+        }
     }
-
-};
+}

@@ -77,6 +77,11 @@ const ProductSchema = new mongoose.Schema({
         type: [CommentSchema],
         default: [],
     },
+    content: {
+        type: String,
+        default: '',
+        required: false,
+    },
     createdAt: {
         type: Date,
         default: Date.now,

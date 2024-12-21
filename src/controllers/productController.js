@@ -90,7 +90,7 @@ module.exports = {
             }
 
             // 取得欄位資料
-            const { name, description, price, category, stock } = body;
+            const { name, description, price, category, stock, content } = body;
 
             // 處理資料
             const processedName = name ? name : '';
@@ -98,7 +98,7 @@ module.exports = {
             const processedPrice = price ? parseFloat(price) : 0;
             const processedCategory = category ? category : '';
             const processedStock = stock ? parseInt(stock, 10) : 0;
-
+            const processedContent = content ? content : '';
             // 處理上傳的圖片路徑
             var imagePaths = [];
             for (let i = 0; i < files.length; i++) {
@@ -108,8 +108,10 @@ module.exports = {
             }
             console.log(imagePaths)
             // 確保資料完整後再儲存
-            if (![processedName, processedDescription, processedPrice, processedCategory, processedStock].every(param => param)) {
-                return res.status(400).json({ status: 400, message: '缺少必要參數' });
+            if (![processedName, processedDescription, processedCategory].every(param => param !== '') ||
+                typeof processedPrice !== 'number' || typeof processedStock !== 'number') {
+                console.log(processedName, processedDescription, processedPrice, processedCategory, processedStock);
+                return res.status(400).json({ status: 400, message: '缺少必要參數或參數類型錯誤' });
             }
 
             // 新增商品
@@ -119,6 +121,7 @@ module.exports = {
                 price: processedPrice,
                 category: processedCategory,
                 stock: processedStock,
+                content: processedContent,
                 images: imagePaths,  // 確保將圖片路徑作為陣列儲存
                 tags: []  // 可以選擇加上處理 tags 的邏輯
             });
