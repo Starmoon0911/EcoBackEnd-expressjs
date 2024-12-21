@@ -1,14 +1,13 @@
 require('dotenv').config();
 const Product = require('@database/schemas/product');
 const User = require('@database/schemas/User');
-const { ObjectId } = require('mongodb')
-const jwt = require('jsonwebtoken')
-const { isValidObjectId } = require('mongoose')
-const multiparty = require('multiparty')
+const { ObjectId } = require('mongodb');
+const jwt = require('jsonwebtoken');
+const { isValidObjectId } = require('mongoose');
+const multiparty = require('multiparty');
 
-
-const log = require('@utils/logger')
-const JWT_SECRET = process.env.JWT_SECRET
+const log = require('@utils/logger');
+const JWT_SECRET = process.env.JWT_SECRET;
 module.exports = {
     createCommet: async (req, res) => {
         const { username, content, tags } = req.body;
@@ -106,7 +105,11 @@ module.exports = {
                     imagePaths.push(files[i].path);
                 }
             }
-            console.log(imagePaths)
+            // 如果圖片陣列為空，設置預設圖片
+            if (imagePaths.length === 0) {
+                imagePaths.push('/upload/default/NoImage.jpg');
+            }
+            console.log(imagePaths);
             // 確保資料完整後再儲存
             if (![processedName, processedDescription, processedCategory].every(param => param !== '') ||
                 typeof processedPrice !== 'number' || typeof processedStock !== 'number') {
