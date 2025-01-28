@@ -276,5 +276,30 @@ module.exports = {
             log.error(error);
             return res.status(500).json({ status: 500, message: '伺服器錯誤' });
         }
+    },
+    updateBalance: async (req, res) => {
+        const { userId, balance } = req.body;
+        if(!userId || !balance || !isValidObjectId(userId)){
+            return res.status(400).json({ status: 400, message: 'userId and balance are required' });
+        }
+        if(!Number.isInteger(balance) || balance < 0 ){
+            return res.status(400).json({ status: 400, message: 'balance must be a positive integer' });    
+        } 
+        try {
+            const owner = await User.findById(req.userId);
+            if (owner.role !== 'admin') {
+                return res.status(401).json({ status: 401, message: 'You are not authorized to update balance' });
+            }
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ status: 404, message: 'No User Found :<' });
+            }
+            user.balance = balance;
+            await user.save();
+            return res.status(200).json({ status: 200, message: 'User balance updated successfully' });
+        } catch (error) {
+            log.error(error);
+            return res.status(500).json({ status: 500, message: '伺服器錯誤' });
+        }
     }
 }

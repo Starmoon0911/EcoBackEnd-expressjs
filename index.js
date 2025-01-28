@@ -14,6 +14,7 @@ const cookieParser = require('cookie-parser');
 
 app.use(cookieParser());
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 app.use('/upload/avatar', express.static(path.join(__dirname, 'upload/avatar')));
 app.use('/upload/product', express.static(path.join(__dirname, 'upload/product')));
