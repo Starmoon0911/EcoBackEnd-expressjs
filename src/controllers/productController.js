@@ -78,7 +78,16 @@ module.exports = {
     createProduct: async (req, res) => {
         console.log(req.body);  // 顯示表單欄位資料
         console.log(req.files);  // 顯示圖片檔案
+        try {
+            const owner = await User.findById(req.userId);
+            if (owner.role !== 'admin') {
+                return res.status(401).json({ status: 401, message: 'You are not authorized to delete user' });
+            }
+        } catch (error) {
+            log.error(error);
+            return res.status(500).json({ status: 500, message: '伺服器錯誤' });
 
+        }
         try {
             const { body, files } = req;  // 從 req.body 取得欄位資料，從 req.files 取得檔案資料
 
@@ -201,6 +210,16 @@ module.exports = {
     deleteProduct: async (req, res) => {
         const token = req.headers.authorization?.split(' ')[1];
         const { productId } = req.body;
+        try {
+            const owner = await User.findById(req.userId);
+            if (owner.role !== 'admin') {
+                return res.status(401).json({ status: 401, message: 'You are not authorized to delete user' });
+            }
+        } catch (error) {
+            log.error(error);
+            return res.status(500).json({ status: 500, message: '伺服器錯誤' });
+
+        }
         try {
             const decoded = jwt.verify(token, JWT_SECRET); // 驗證 token
             userId = decoded.userId; // 提取 userId

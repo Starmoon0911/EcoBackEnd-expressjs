@@ -1,0 +1,6 @@
+{
+    "enbaleDiscordWebhook": true,
+    "url":{
+        "OrderNotify":"https://discord.com/api/webhooks/1315298407115395073/V8wgoKFAYMlgcD_0OSi14g78F9tyiqIvRjiusHh1i2St6_KuSx4ewIt-NSvwlES4SikE"
+    }
+}

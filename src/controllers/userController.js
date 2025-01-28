@@ -11,6 +11,19 @@ require('dotenv').config()
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret'; // 確保設置 JWT 密鑰
 
 module.exports = {
+    verifyToken: (req, res, next) => {
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({ message: '未提供授權令牌' });
+        }
+        try {
+            const decoded = jwt.verify(token, JWT_SECRET);
+            req.userId = decoded.userId;
+            next();
+        } catch (error) {
+            return res.status(401).json({ message: '無效的授權令牌' });
+        }
+    },
     register: async (req, res) => {
         const { username, email, password } = req.body;
 
@@ -148,32 +161,119 @@ module.exports = {
         }
     },
     getUser: async (req, res) => {
-        const userID = req.params['id'];
-        if (!userID) {
-            return res.status(400).json({ status: 400, message: 'userID is required for getting user avatar' });
-        }
-        if (!isValidObjectId(userID)) {
+        const userID = req.query['id'];
+
+        if (userID && !isValidObjectId(userID)) {
             return res.status(400).json({ status: 400, message: '哥們你的userID是甚麼ㄒㄧㄠˇ' })
         }
         try {
-            const user = await User.findById(userID); // 確保使用 await
+            const user = userID ? await User.findById(userID) : await User.find({}); // 確保使用 await
+            if (!user || (Array.isArray(user) && user.length === 0)) {
+                return res.status(404).json({ status: 404, message: 'No User Found :<' });
+            }
+
+            if (Array.isArray(user)) {
+                // 如果是陣列，遍歷並格式化每個用戶資料
+                const formattedUsers = user.map((u) => ({
+                    id: u._id,
+                    username: u.username,
+                    email: u.email,
+                    avatarURL: `${req.protocol}://${req.get('host')}${u.avatarURL}`,
+                    role: u.role,
+                    balance: u.balance,
+                    createdAt: u.createdAt,
+                    updatedAt: u.updatedAt
+                }));
+
+                return res.status(200).json({
+                    status: 200,
+                    data: formattedUsers // 返回格式化後的用戶陣列
+                });
+            } else {
+                // 單個用戶的情況
+                return res.status(200).json({
+                    status: 200,
+                    data: {
+                        id: user._id,
+                        username: user.username,
+                        email: user.email,
+                        avatarURL: `${req.protocol}://${req.get('host')}${user.avatarURL}`,
+                        role: user.role,
+                        balance: user.balance,
+                        createdAt: user.createdAt,
+                        updatedAt: user.updatedAt
+                    }
+                });
+            }
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ status: 500, message: '伺服器錯誤' });
+        }
+    },
+    changerole: async (req, res) => {
+        const { id, role } = req.body;
+
+        try {
+            const owner = await User.findById(req.userId);
+            if (owner.role !== 'admin') {
+                return res.status(401).json({ status: 401, message: 'You are not authorized to delete user' });
+            }
+        } catch (error) {
+            log.error(error);
+            return res.status(500).json({ status: 500, message: '伺服器錯誤' });
+
+        }
+        if (!id || !role) {
+            return res.status(400).json({ status: 400, message: 'id and role are required' });
+        }
+        if (role !== 'admin' && role !== 'customer') {
+            return res.status(400).json({ status: 400, message: 'role must be either admin or customer' });
+        }
+        if (!isValidObjectId(id)) {
+            return res.status(400).json({ status: 400, message: '哥們你的id是甚麼ㄒㄧㄠˇ' })
+        }
+        try {
+            const user = await User.findById(id);
             if (!user) {
                 return res.status(404).json({ status: 404, message: 'No User Found :<' });
             }
-            return res.status(200).json({
-                status:200,
-                data:{
-                    username:user.username,
-                    email:user.email,
-                    avatarURL:`${req.protocol}://${req.get('host')}${user.avatarURL}`,
-                    role:user.role,
-                    balance:user.balance,
-                    createdAt:user.createdAt,
-                    updatedAt:user.updatedAt
-                }
-            })
+
+            user.role = role;
+            await user.save();
+
+            return res.status(200).json({ status: 200, message: 'User role updated successfully' });
         } catch (error) {
             console.error(error);
+            return res.status(500).json({ status: 500, message: '伺服器錯誤' });
+        }
+    },
+    deleteUser: async (req, res) => {
+        const { id } = req.query;
+        try {
+            const owner = await User.findById(req.userId);
+            if (owner.role !== 'admin') {
+                return res.status(401).json({ status: 401, message: 'You are not authorized to delete user' });
+            }
+        } catch (error) {
+            log.error(error);
+            return res.status(500).json({ status: 500, message: '伺服器錯誤' });
+
+        }
+        if (!id) {
+            return res.status(400).json({ status: 400, message: 'id is required' });
+        }
+        if (!isValidObjectId(id)) {
+            return res.status(400).json({ status: 400, message: '哥們你的id是甚麼ㄒㄧㄠˇ' })
+        }
+        try {
+            const user = await User.findByIdAndDelete(id);
+            if (!user) {
+                return res.status(404).json({ status: 404, message: 'No User Found :<' });
+            }
+            res.status(200).json({ status: 200, message: 'User deleted successfully' });
+
+        } catch (error) {
+            log.error(error);
             return res.status(500).json({ status: 500, message: '伺服器錯誤' });
         }
     }

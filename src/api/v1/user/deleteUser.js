@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { createOrder } = require('@controller/orderController')
+const { deleteUser } = require('@controller/userController')
 const { verifyToken } = require("@controller/userController")
-router.post('/create', verifyToken, createOrder);
+router.delete('/delete',verifyToken, deleteUser);
 
 module.exports = {
     router,
-    name: "create",
-};
+    name:"delete"
+}

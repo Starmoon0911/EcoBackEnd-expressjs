@@ -1,8 +1,8 @@
 const expres = require('express');
 const router = expres.Router();
 const { CompletOrder } = require('@controller/orderController')
-
-router.post('/CompletOrder', CompletOrder);
+const { verifyToken } = require('@controller/userController');
+router.post('/complet',verifyToken, CompletOrder);
 
 module.exports = {
     router,

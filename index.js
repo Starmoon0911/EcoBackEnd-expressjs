@@ -10,11 +10,14 @@ const db = require('@database/mongoose.js');
 const app = express();
 const PORT = process.env.PORT || 9000;
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(cors());
 app.use('/upload/avatar', express.static(path.join(__dirname, 'upload/avatar')));
 app.use('/upload/product', express.static(path.join(__dirname, 'upload/product')));
+app.use('/upload/default', express.static(path.join(__dirname, 'upload/default')));
 
 // 自動加載 API 路由
 const apiPath = path.join(__dirname, 'src', 'api');
