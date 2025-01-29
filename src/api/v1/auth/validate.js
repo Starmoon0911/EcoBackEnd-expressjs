@@ -1,5 +1,5 @@
-const exporess = require('express');
-const router = exporess.Router();
+const express = require('express');
+const router = express.Router();
 const User = require('@database/schemas/User')
 const jwt = require('jsonwebtoken')
 router.post("/validate", async (req, res) => {
