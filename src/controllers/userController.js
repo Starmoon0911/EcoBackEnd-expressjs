@@ -279,12 +279,12 @@ module.exports = {
     },
     updateBalance: async (req, res) => {
         const { userId, balance } = req.body;
-        if(!userId || !balance || !isValidObjectId(userId)){
+        if (!userId || !balance || !isValidObjectId(userId)) {
             return res.status(400).json({ status: 400, message: 'userId and balance are required' });
         }
-        if(!Number.isInteger(balance) || balance < 0 ){
-            return res.status(400).json({ status: 400, message: 'balance must be a positive integer' });    
-        } 
+        if (!Number.isInteger(balance) || balance < 0) {
+            return res.status(400).json({ status: 400, message: 'balance must be a positive integer' });
+        }
         try {
             const owner = await User.findById(req.userId);
             if (owner.role !== 'admin') {
@@ -297,6 +297,60 @@ module.exports = {
             user.balance = balance;
             await user.save();
             return res.status(200).json({ status: 200, message: 'User balance updated successfully' });
+        } catch (error) {
+            log.error(error);
+            return res.status(500).json({ status: 500, message: '伺服器錯誤' });
+        }
+    },
+    updateUsername: async (req, res) => {
+        const { userId, username } = req.body;
+        try {
+            const owner = await User.findById(req.userId);
+            if (owner.id.toString() !== userId) {
+                return res.status(401).json({ status: 401, message: 'You are not authorized to update username' });
+            }
+        } catch (error) {
+            log.error(error);
+            return res.status(500).json({ status: 500, message: '伺服器錯誤' });
+        }
+
+        if (!userId || !username || !isValidObjectId(userId)) {
+            return res.status(400).json({ status: 400, message: 'userId and username are required' });
+        }
+        try {
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ status: 404, message: 'No User Found :<' });
+            }
+            user.username = username;
+            await user.save();
+            return res.status(200).json({ status: 200, message: 'User username updated successfully' });
+        } catch (error) {
+            log.error(error);
+            return res.status(500).json({ status: 500, message: '伺服器錯誤' });
+        }
+    },
+    updatePassword: async (req, res) => {
+        const { originalPassword, newPassword,userId } = req.body;
+        try {
+            const owner = await User.findById(req.userId);
+            const isMatch = await bcrypt.compare(originalPassword, owner.password);
+            if (owner.id.toString() !== userId || !isMatch) {
+                return res.status(401).json({ status: 401, message: 'You are not authorized to update password' });
+            }
+        } catch (error) {
+            log.error(error);
+            return res.status(500).json({ status: 500, message: '伺服器錯誤' });
+        }
+        try {
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ status: 404, message: 'No User Found :<' });
+            }
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            user.password = hashedPassword;
+            await user.save();
+            return res.status(200).json({ status: 200, message: 'User password updated successfully' });
         } catch (error) {
             log.error(error);
             return res.status(500).json({ status: 500, message: '伺服器錯誤' });
