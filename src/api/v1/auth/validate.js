@@ -9,15 +9,11 @@ router.post("/validate", async (req, res) => {
     }
     try {
         const decode = jwt.verify(token, process.env.JWT_SECRET);
-        const user = User.findById(decode);
-        if (user?.role === "admin") {
-            return res.status(200).json({ message: "Token is valid", data: decode, role: "admin" })
-
-        }
-        res.status(200).json({ message: "Token is valid", data: decode, role: "customer" })
+        const user = await User.findById(decode.userId);
+        res.status(200).json({ message: "Token is valid", data: decode, role: user?.role })
     } catch (error) {
+        console.log(error)
         return res.status(401).json({ valid: false, message: 'Token 無效或已過期' });
-
     }
 });
 
